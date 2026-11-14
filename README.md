@@ -2,7 +2,8 @@
 
 Secure Android messenger built for when the network is down: phones chat directly over Bluetooth/Wi-Fi
 and pass end-to-end encrypted messages along for each other across a crowd, and use an internet
-relay when one is reachable. See [SYSTEM_DESIGN.md](SYSTEM_DESIGN.md) for the full design.
+relay when one is reachable. See [SYSTEM_DESIGN.md](SYSTEM_DESIGN.md) for the full design, and
+[DEVELOPING.md](DEVELOPING.md) to set up the project on a new machine.
 
 ## Status
 
