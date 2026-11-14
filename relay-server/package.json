@@ -1,0 +1,17 @@
+{
+  "name": "wichat-relay",
+  "version": "0.1.0",
+  "description": "Development relay for WiChat: prekey directory + store-and-forward of end-to-end encrypted envelopes",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "ws": "8.18.0"
+  }
+}

@@ -1,0 +1,14 @@
+*.iml
+.gradle/
+.idea/
+.kotlin/
+local.properties
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+relay-server/node_modules/
+relay-server/data.json
+relay-server/blobs/
+# Release signing key and its passwords: back these up privately, never commit them
+keystore/

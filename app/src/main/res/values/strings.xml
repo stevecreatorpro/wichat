@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">WiChat</string>
+    <string name="channel_service">Connection</string>
+    <string name="channel_messages">Messages</string>
+    <string name="service_running">Connected for secure messaging</string>
+</resources>
