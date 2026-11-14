@@ -1,0 +1,99 @@
+# Tests everything and builds installable APKs on every push, so the project can be worked on
+# from any device (even a phone): change code, push, then download the APK from the run's
+# "Artifacts" section.
+name: Build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  relay:
+    name: Relay server tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: relay-server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: relay-server/package-lock.json
+      - run: npm ci
+      - run: npm test
+
+  android:
+    name: App tests and APKs
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Unit tests
+        run: ./gradlew :app:testDebugUnitTest --stacktrace
+
+      - name: Debug APK
+        run: ./gradlew :app:assembleDebug
+
+      # Optional: add these repository secrets to also get a signed release APK
+      # (Settings > Secrets and variables > Actions). See DEVELOPING.md.
+      - name: Restore release signing key
+        id: keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "No signing secrets set: skipping the release APK."
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          mkdir -p keystore
+          echo "$KEYSTORE_BASE64" | base64 --decode > keystore/wichat-release.jks
+          printf 'storeFile=../keystore/wichat-release.jks\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' \
+            "$KEYSTORE_PASSWORD" "$KEY_ALIAS" "$KEY_PASSWORD" > keystore/keystore.properties
+          echo "present=true" >> "$GITHUB_OUTPUT"
+
+      - name: Release APK
+        if: steps.keystore.outputs.present == 'true'
+        run: ./gradlew :app:assembleRelease -x lintVitalAnalyzeRelease -x lintVitalReportRelease -x lintVitalRelease
+
+      - name: Remove signing key from the runner
+        if: always()
+        run: rm -rf keystore
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-reports
+          path: app/build/reports/tests/
+          if-no-files-found: ignore
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wichat-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          compression-level: 0
+
+      - uses: actions/upload-artifact@v4
+        if: steps.keystore.outputs.present == 'true'
+        with:
+          name: wichat-release-apk
+          path: app/build/outputs/apk/release/app-release.apk
+          compression-level: 0

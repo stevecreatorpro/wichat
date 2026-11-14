@@ -1,5 +1,35 @@
 # Developing WiChat on a new device
 
+## Working from a phone
+
+You can't run Android Studio on a phone, so the builds run on GitHub instead (GitHub Actions,
+`.github/workflows/build.yml`). Every push runs all the tests and builds the APK on a fresh
+GitHub server.
+
+1. **Change code** by any of these:
+   - **Claude Code** in the Claude mobile app or at claude.ai/code. Open this repo and ask for
+     changes; it reads `CLAUDE.md` for the project's commands and rules.
+   - **GitHub's editor**: open a file on github.com in your phone's browser → ✏️ → **Commit changes**.
+   - Termux + git, if you prefer a terminal.
+2. **Watch the build**: github.com/stevecreatorpro/wichat → **Actions** tab. A run takes roughly
+   10–20 minutes. A red ✗ means a test or the build failed: tap it to see which step.
+3. **Install it**: open the finished run → **Artifacts** → `wichat-debug-apk` → download → open the
+   zip → tap `app-debug.apk` → Install. Updates install over the previous build and keep your chats,
+   because every build uses the same debug key (`app/debug.keystore`, Android's standard test key: not a secret).
+   GitHub requires being signed in to download artifacts.
+
+**Signed release APKs from GitHub (optional, one-time setup on a computer):** on the PC that has
+the `keystore/` folder, open `keystore/github-secrets.txt`. Add each of the 4 values at
+github.com/stevecreatorpro/wichat → **Settings → Secrets and variables → Actions → New repository
+secret**. After that, every run also produces `wichat-release-apk`. The secrets can't be read back,
+even by you, and never appear in the code or logs.
+
+**The relay without your PC:** deploy it online once (`DEPLOY.md`, Fly.io works from a phone browser
+plus a terminal), or run it on an Android phone in Termux (`pkg install nodejs git`, clone the repo,
+`cd relay-server && npm ci && npm start`).
+
+## Working from a computer
+
 Everything needed to build and run WiChat is in this repo, except two things kept out on purpose:
 
 | Not in the repo | Why | What to do |

@@ -27,6 +27,14 @@ android {
         rootProject.file("keystore/keystore.properties").takeIf { it.exists() }?.inputStream()?.use(::load)
     }
     signingConfigs {
+        // Shared debug key (Android's standard test key, not a secret) so debug APKs built on any
+        // machine, including GitHub Actions, install over each other without wiping app data.
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
         if (signingProps.isNotEmpty()) {
             create("release") {
                 storeFile = file(signingProps.getProperty("storeFile"))

@@ -13,6 +13,10 @@ Setup on a new machine: `DEVELOPING.md`. Design: `SYSTEM_DESIGN.md`. Open work: 
 - Relay tests: `cd relay-server && npm test`
 
 Gradle builds are slow (first build ~1 GB of downloads); run them in the background.
+The owner often works from a phone: every push runs `.github/workflows/build.yml` (tests + APK
+artifacts), so keep it green and tell them to grab the APK from the run's Artifacts.
+Debug builds are signed with the committed `app/debug.keystore` (standard Android test key) so
+builds from any machine update each other.
 
 ## Rules
 
